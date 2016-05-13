@@ -23,8 +23,6 @@ public class AccelerometerService extends Service{
     public final static String ACTION_HEADER = "com.huami.recognitiondemo.";
     private final static String TAG = "SensorACC";
 
-
-
     protected SensorManager mSensorManager;
     protected Sensor mSensor;
     protected int mAccuracy;
@@ -33,17 +31,11 @@ public class AccelerometerService extends Service{
     protected int mSampleCount = 0;
     protected File mTargetFile;
 
-
-    //public static Date sStartDate = null;
-   // protected String mName = "ACC";
     protected int mColumnNum = 3;
     protected String mColumnHeader = "AccX\tAccY\tAccZ";
 
-
     private FileOutputStream mWriter;
     private boolean mPrintLock = false;
-
-
 
     public SensorBuffer sensorBuffer;
 

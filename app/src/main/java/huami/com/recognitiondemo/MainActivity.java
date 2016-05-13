@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import huami.com.recognitiondemo.utils.SensorBuffer;
+import huami.com.recognitiondemo.utils.SensorModel;
+
 public class MainActivity extends Activity {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     public static final String SENSOR_TYPE = "ACC";
@@ -25,6 +28,7 @@ public class MainActivity extends Activity {
 
     Button mStartBtn = null;
 
+    SensorBuffer sensorBuffer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,15 @@ public class MainActivity extends Activity {
             sSensorBaseFolder = new File(Environment.getExternalStorageDirectory(), "Recognition");
             sSensorBaseFolder.mkdir();
         }
+
+//        sensorBuffer = new SensorBuffer();
+//        for(int i = 0; i < 2000; i++){
+//            for(int j = 0; j < 200; j++){
+//                SensorModel s = new SensorModel(j, j, j);
+//            }
+//            SensorModel model = new SensorModel(i, i, i);
+//            sensorBuffer.add(model);
+//        }
     }
 
     private void startRecord() {
