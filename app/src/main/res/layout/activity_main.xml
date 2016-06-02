@@ -23,4 +23,44 @@
         android:layout_height="wrap_content"
         android:text="View"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="前一帧Activity："
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_frame_activity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Activity"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="前分钟Activity:"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tv_minute_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Activity"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+
+
+
 </LinearLayout>

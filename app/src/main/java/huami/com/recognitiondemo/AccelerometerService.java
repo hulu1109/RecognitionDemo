@@ -1,6 +1,7 @@
 package huami.com.recognitiondemo;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,12 +24,12 @@ public class AccelerometerService extends Service{
     public final static String ACTION_HEADER = "com.huami.recognitiondemo.";
     private final static String TAG = "SensorACC";
 
+    MainActivity mainActivity = new MainActivity();
     protected SensorManager mSensorManager;
     protected Sensor mSensor;
     protected int mAccuracy;
 
     protected boolean mIsSensorReady = false;
-    protected int mSampleCount = 0;
     protected File mTargetFile;
 
     protected int mColumnNum = 3;
@@ -39,6 +40,7 @@ public class AccelerometerService extends Service{
 
     public SensorBuffer sensorBuffer;
 
+    private int i = 0;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -56,7 +58,7 @@ public class AccelerometerService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mIsSensorReady = mSensorManager.registerListener(
-            sensorEventListener, mSensor, SensorManager.SENSOR_DELAY_FASTEST
+            sensorEventListener, mSensor, SensorManager.SENSOR_DELAY_UI
         );
         startRecord();
         return super.onStartCommand(intent, flags, startId);
@@ -77,23 +79,38 @@ public class AccelerometerService extends Service{
         sensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                ++mSampleCount;
-
+                i++;
+//                ++mSampleCount;
+//
                 float[] fixedValues = new float[mColumnNum];
 
                 fixedValues[0] = event.values[0];
                 fixedValues[1] = event.values[1];
                 fixedValues[2] = event.values[2];
+//
+//                SensorModel acc;
+//                acc = new SensorModel(fixedValues[0], fixedValues[1], fixedValues[2]);
+//                sensorBuffer.add(acc);
+//
+//                String line = Float.toString(fixedValues[0]);
+//                for(int i = 1; i <mColumnNum; ++i)
+//                    line += "\t" + fixedValues[i];
+//                printLine(line + "\n");
 
-                SensorModel acc;
-                acc = new SensorModel(fixedValues[0], fixedValues[1], fixedValues[2]);
-                sensorBuffer.add(acc);
+//                   float[] fixedValues = new float[mColumnNum];
+//                   fixedValues[0] = i;
+//                   fixedValues[1] = i;
+//                   fixedValues[2] = i;
 
-                String line = Float.toString(fixedValues[0]);
-                for(int i = 1; i <mColumnNum; ++i)
-                    line += "\t" + fixedValues[i];
-                printLine(line + "\n");
-            }
+                   SensorModel acc;
+                   acc = new SensorModel(fixedValues[0], fixedValues[1], fixedValues[2]);
+                   sensorBuffer.add(acc);
+
+                   String line = Float.toString(fixedValues[0]);
+                    for(int j = 1; j <mColumnNum; ++j)
+                        line += "\t" + fixedValues[j];
+                   printLine(line + "\n");
+               }
 
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -128,8 +145,9 @@ public class AccelerometerService extends Service{
             while(mPrintLock)
                 continue;
             mPrintLock = true;
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            mWriter.write((df.format(System.currentTimeMillis()) + "\t" + line).getBytes());
+//            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            mWriter.write((df.format(System.currentTimeMillis()) + "\t" + line).getBytes());
+            mWriter.write(line.getBytes());
             mPrintLock = false;
         }catch (Exception e){
             Log.e(TAG, e.getMessage());

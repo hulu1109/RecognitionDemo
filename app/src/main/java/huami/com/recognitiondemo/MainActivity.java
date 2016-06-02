@@ -6,20 +6,19 @@ import android.os.Environment;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import huami.com.recognitiondemo.utils.SensorBuffer;
-import huami.com.recognitiondemo.utils.SensorModel;
+import huami.com.recognitiondemo.utils.DecisionTree;
 
 public class MainActivity extends Activity {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     public static final String SENSOR_TYPE = "ACC";
     public static long sStartTimestamp = 0;
-
 
     public static File sSensorBaseFolder = null;
     public static Date sStartDate = null;
@@ -27,8 +26,8 @@ public class MainActivity extends Activity {
     boolean mIsRecording = false;
 
     Button mStartBtn = null;
-
-    SensorBuffer sensorBuffer;
+    public static TextView mFrameActivityTV = null;
+    public static TextView mMinuteActivityTV = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,20 +35,15 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mStartBtn = (Button)findViewById(R.id.btn_start);
+        mFrameActivityTV = (TextView)findViewById(R.id.tv_frame_activity);
+        mMinuteActivityTV = (TextView)findViewById(R.id.tv_minute_activity);
 
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             sSensorBaseFolder = new File(Environment.getExternalStorageDirectory(), "Recognition");
             sSensorBaseFolder.mkdir();
         }
 
-//        sensorBuffer = new SensorBuffer();
-//        for(int i = 0; i < 2000; i++){
-//            for(int j = 0; j < 200; j++){
-//                SensorModel s = new SensorModel(j, j, j);
-//            }
-//            SensorModel model = new SensorModel(i, i, i);
-//            sensorBuffer.add(model);
-//        }
+
     }
 
     private void startRecord() {
@@ -66,6 +60,8 @@ public class MainActivity extends Activity {
     private void stopRecord(){
         if(mIsRecording){
             mStartBtn.setText("Start");
+            mFrameActivityTV.setText("Activity");
+            mMinuteActivityTV.setText("Activity");
             mIsRecording = false;
             stopSensorService(SENSOR_TYPE);
         }
@@ -102,4 +98,9 @@ public class MainActivity extends Activity {
         else
             stopRecord();
     }
+
+//    public TextView getTextView(){
+//        TextView textView = (TextView)findViewById(R.id.tv_recognition);
+//        return textView;
+//    }
 }
