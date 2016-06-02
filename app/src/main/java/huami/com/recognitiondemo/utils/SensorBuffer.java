@@ -17,12 +17,12 @@ import huami.com.recognitiondemo.MainActivity;
  */
 public class SensorBuffer {
     protected MainActivity mActivity;
-    private Correlation correlation;
+//    private Correlation correlation;
 
-    private int maxSize = 500;
-    private int frameLen = maxSize/2;
-    private int preProcessingNum = 8;
-    private int extractionNum = 18;
+    private static final int maxSize = 500;
+    private static final int frameLen = maxSize/2;
+    private static final int preProcessingNum = 8;
+    private static final int extractionNum = 18;
 
     private float Buffer[][] = new float[maxSize+10][3];
     public int writeIndex;
@@ -191,26 +191,32 @@ public class SensorBuffer {
 //        float[] bb = new float[]{2, 4, 7, 9, 10};
 //        correlation = new Correlation(aa, bb);
 
-        correlation = new Correlation(extractionIn[0], extractionIn[1]);
-        float xcorrMax = correlation.findMax(correlation.X);
-        maxXcorr[0] = xcorrMax;
-        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-        xcorrMax = correlation.findMax(correlation.X);
-        maxXcorr[1] = xcorrMax;
-        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-        xcorrMax = correlation.findMax(correlation.X);
-        maxXcorr[2] = xcorrMax;
-        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-        xcorrMax = correlation.findMax(correlation.X);
-        maxXcorr[3] = xcorrMax;
-        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-        xcorrMax = correlation.findMax(correlation.X);
-        maxXcorr[4] = xcorrMax;
-        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-        xcorrMax = correlation.findMax(correlation.X);
-        maxXcorr[5] = xcorrMax;
+//        correlation = new Correlation(extractionIn[0], extractionIn[1]);
+//        float xcorrMax = correlation.findMax(correlation.X);
+//        maxXcorr[0] = xcorrMax;
+//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
+//        xcorrMax = correlation.findMax(correlation.X);
+//        maxXcorr[1] = xcorrMax;
+//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
+//        xcorrMax = correlation.findMax(correlation.X);
+//        maxXcorr[2] = xcorrMax;
+//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
+//        xcorrMax = correlation.findMax(correlation.X);
+//        maxXcorr[3] = xcorrMax;
+//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
+//        xcorrMax = correlation.findMax(correlation.X);
+//        maxXcorr[4] = xcorrMax;
+//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
+//        xcorrMax = correlation.findMax(correlation.X);
+//        maxXcorr[5] = xcorrMax;
 
-
+        Correlation correlation = new Correlation();
+        maxXcorr[0] = correlation.calculateCorrelation(extractionIn[0], extractionIn[1]);
+        maxXcorr[1] = correlation.calculateCorrelation(extractionIn[0], extractionIn[2]);
+        maxXcorr[2] = correlation.calculateCorrelation(extractionIn[0], extractionIn[3]);
+        maxXcorr[3] = correlation.calculateCorrelation(extractionIn[1], extractionIn[2]);
+        maxXcorr[4] = correlation.calculateCorrelation(extractionIn[1], extractionIn[3]);
+        maxXcorr[5] = correlation.calculateCorrelation(extractionIn[2], extractionIn[3]);
 
 
         for(int i = 0; i < 8; i++){
@@ -267,23 +273,7 @@ public class SensorBuffer {
             float fftMax = fftResult[0]; int fftPeakPos = 0;
             float sumFFT = fftResult[0]; float sumEntropy = 0;
             float sum0_1 = 0, sum1_3 = 0, sum3_5 = 0, sum5_16 = 0;
-//            for(int j = 1; j < frameLen/2; j++){
-//                sumFFT = sumFFT + fftResult[j];
-//                sumEntropy = sumEntropy + fftResult[j] * (float)(Math.log(fftResult[j])/Math.log(2));
-//                if(j == 9)
-//                    sum0_1 = sumFFT;
-//                if(j == 25)
-//                    sum1_3 = sumFFT - sum0_1;
-//                if(j == 41)
-//                    sum3_5 = sumFFT - sum1_3 - sum0_1;
-//                if(j == 124)
-//                    sum5_16 = sumFFT -sum3_5 - sum1_3 - sum0_1;
-//
-//                if(fftResult[j] >= fftMax){
-//                    fftMax = fftResult[j];
-//                    fftPeakPos = j;
-//                }
-//            }
+
             for(int j = 1; j < frameLen/2; j++){
                 sumFFT = sumFFT + fftResult[j];
                 sumEntropy = sumEntropy + fftResult[j] * (float)(Math.log(fftResult[j])/Math.log(2));
@@ -337,14 +327,14 @@ public class SensorBuffer {
     }
 
     private void recognition(float[][] item){
-        if(moveCount + stillCount >= 8 && moveCount >= stillCount){
+        if(moveCount + stillCount >= 6 && moveCount >= stillCount){
             update(MainActivity.mMinuteActivityTV, "moving");
             moveCount = stillCount = 0;
-        }else if(moveCount + stillCount >= 8 && moveCount < stillCount){
+        }else if(moveCount + stillCount >= 6 && moveCount < stillCount){
             update(MainActivity.mMinuteActivityTV, "stationary");
             moveCount = stillCount = 0;
         }
-        if(item[3][1] > 15){
+        if(item[3][1] > 1){
             update(MainActivity.mFrameActivityTV, "moving");
             moveCount++;
         }
