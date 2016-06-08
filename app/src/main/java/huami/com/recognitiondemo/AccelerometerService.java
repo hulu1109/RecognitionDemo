@@ -58,7 +58,7 @@ public class AccelerometerService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mIsSensorReady = mSensorManager.registerListener(
-            sensorEventListener, mSensor, SensorManager.SENSOR_DELAY_UI
+            sensorEventListener, mSensor, SensorManager.SENSOR_DELAY_GAME
         );
         startRecord();
         return super.onStartCommand(intent, flags, startId);
@@ -84,9 +84,9 @@ public class AccelerometerService extends Service{
 //
                 float[] fixedValues = new float[mColumnNum];
 
-                fixedValues[0] = event.values[0];
-                fixedValues[1] = event.values[1];
-                fixedValues[2] = event.values[2];
+                fixedValues[0] = (float)(event.values[0] / 9.8);
+                fixedValues[1] = (float)(event.values[1] / 9.8);
+                fixedValues[2] = (float)(event.values[2] / 9.8);
 //
 //                SensorModel acc;
 //                acc = new SensorModel(fixedValues[0], fixedValues[1], fixedValues[2]);

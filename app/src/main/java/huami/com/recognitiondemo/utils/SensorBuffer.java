@@ -1,16 +1,15 @@
 package huami.com.recognitiondemo.utils;
 
+import android.util.Log;
 import android.widget.TextView;
 
 import org.jtransforms.fft.FloatFFT_1D;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import huami.com.recognitiondemo.MainActivity;
-;
 
 /**
  * Created by test on 2016/5/12.
@@ -40,8 +39,9 @@ public class SensorBuffer {
     private int moveCount;
     private int stillCount;
 
-//    float[] cutPoint = new float[167];//value
-//    Integer[] cutPredictor = new Integer[167];//index
+    public static int[] activityCount = new int[10];
+    public static int activitySum = 0;
+    private String[] activityUI = new String[]{"", "", "", "", "", "", "", "", "", "",};
 
     public SensorBuffer(){
         mActivity = new MainActivity();
@@ -111,48 +111,6 @@ public class SensorBuffer {
         }
         featureExtraction(preProcessingOut);
 
-//        try{
-////            float[][] processing = new float[frameLen][8];
-//            int i;
-//            for(i = 0; i < frameLen; i++){
-//                readIndex = readIndex == maxSize ? 0 : readIndex;
-//                float[] item = new float[8];
-//                System.arraycopy(Buffer[readIndex], 0, item, 0, 3);//数据写入item数组
-//                Log.d("test", String.valueOf(readIndex));
-//                float accX = item[0];
-//                float accY = item[1];
-//                float accZ = item[2];
-//                float mag = (float) Math.sqrt(accX * accX + accY * accY + accZ * accZ);
-//                float angular1 = (float) Math.acos(accZ / mag);
-//                float angular2 = (float) Math.atan(accX / (float) Math.sqrt(accY * accY + accZ * accZ));
-//                float angular3 = (float) Math.atan(accY / (float) Math.sqrt(accX * accX + accZ * accZ));
-//                float angular4 = (float) Math.atan((float) Math.sqrt(accX * accX + accY * accY) / accZ);
-//                item[3] = mag; item[4] = angular1; item[5] = angular2; item[6] = angular3; item[7] = angular4;
-//
-//                //测试X输出
-////                String strItem = String.valueOf(accX);
-////                strItem = strItem +"\t" + readIndex +"\t";
-////                if(xWriter != null)
-////                    xWriter.write(strItem.getBytes());
-////                Log.d("test", strItem);
-//                pos = readIndex%frameLen;//pos-填充到数组的具体位
-//                System.arraycopy(item, 0, processing[pos], 0, 8);//数组填充
-//                String strItem = Arrays.toString(processing[pos]);
-//                if(xWriter != null)
-//                    xWriter.write(strItem.getBytes());
-//
-//                readIndex++;//读指针后移一位
-//                Log.d("test", strItem);
-//            }
-//            if(i == frameLen){
-//                xWriter.write("\n".getBytes() );
-//                Log.d("test","线程执行完毕");
-//            }
-//        }catch (FileNotFoundException e){
-//            e.printStackTrace();
-//        }catch(Exception e){
-//            e.getMessage();
-//        }
         return true;
     }
 
@@ -190,25 +148,6 @@ public class SensorBuffer {
 //        float[] aa = new float[]{1, 2, 3, 4, 5};
 //        float[] bb = new float[]{2, 4, 7, 9, 10};
 //        correlation = new Correlation(aa, bb);
-
-//        correlation = new Correlation(extractionIn[0], extractionIn[1]);
-//        float xcorrMax = correlation.findMax(correlation.X);
-//        maxXcorr[0] = xcorrMax;
-//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-//        xcorrMax = correlation.findMax(correlation.X);
-//        maxXcorr[1] = xcorrMax;
-//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-//        xcorrMax = correlation.findMax(correlation.X);
-//        maxXcorr[2] = xcorrMax;
-//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-//        xcorrMax = correlation.findMax(correlation.X);
-//        maxXcorr[3] = xcorrMax;
-//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-//        xcorrMax = correlation.findMax(correlation.X);
-//        maxXcorr[4] = xcorrMax;
-//        correlation = new Correlation(extractionIn[0], extractionIn[2]);
-//        xcorrMax = correlation.findMax(correlation.X);
-//        maxXcorr[5] = xcorrMax;
 
         Correlation correlation = new Correlation();
         maxXcorr[0] = correlation.calculateCorrelation(extractionIn[0], extractionIn[1]);
@@ -266,9 +205,9 @@ public class SensorBuffer {
             for(int j = 1; j < frameLen/2; j++){
                 float re = temp[j * 2];
                 float im = temp[j * 2 + 1];
-                fftResult[j] = (float)Math.sqrt(re * re + im * im);
+                fftResult[j] = re * re + im * im;
             }
-//            saveFft(fftResult);
+            saveFft(fftResult);
 
             float fftMax = fftResult[0]; int fftPeakPos = 0;
             float sumFFT = fftResult[0]; float sumEntropy = 0;
@@ -305,46 +244,64 @@ public class SensorBuffer {
             extractionOut[i][15] = sumFFT; extractionOut[i][16] = entropy;
             extractionOut[i][17] = crossingRate;
 
-//            saveFile(extractionOut[i], i);
+           // saveFile(extractionOut[i], i);
         }
 
-        recognition(extractionOut);//改变界面值
+//        preRecognition(extractionOut);//改变界面值
         reShape(extractionOut, maxXcorr);
 
     }
     public void reShape(float[][] item1, float[] item2){
         float[] testData = new float[150];
+//        float[] testData = new float[150];
         for(int i = 0; i < 8; i++)
             for(int j = 0; j < 18; j++)
                 testData[18 * i + j] = item1[i][j];
         for(int i = 0;i < 6; i++)
             testData[144 + i] = item2[i];
 
-        //decision tree
-        DecisionTree decisionTree = new DecisionTree();
-        decisionTree.classification(testData);
+        String s1 = String.valueOf(testData[117]);
+        if(s1.length() > 3)
+            s1 = s1.substring(0, 3);
+        String s2 = String.valueOf(testData[11]);
+        if(s2.length() > 3)
+            s2 = s2.substring(0, 3);
+        String s3 = String.valueOf(testData[71]);
+        if(s3.length() > 3)
+            s3 = s3.substring(0, 3);
+        String s4 = String.valueOf(testData[34]);
+        if(s4.length() > 3)
+            s4 = s4.substring(0, 3);
 
+        updateUI(MainActivity.mTestDataTV, s1 + "," + s2 + "," + s3 + "," + s4);
+        //print tree
+//        mActivity.decisionTreeNode.levelTraversal();
+        double tempAct = mActivity.decisionTreeNode.classification(testData);
+        Log.d("test", String.valueOf(tempAct));
+        finalResult(tempAct);
     }
 
-    private void recognition(float[][] item){
+
+
+    private void preRecognition(float[][] item){
         if(moveCount + stillCount >= 6 && moveCount >= stillCount){
-            update(MainActivity.mMinuteActivityTV, "moving");
+            updateUI(MainActivity.mMinuteActivityTV, "moving");
             moveCount = stillCount = 0;
         }else if(moveCount + stillCount >= 6 && moveCount < stillCount){
-            update(MainActivity.mMinuteActivityTV, "stationary");
+            updateUI(MainActivity.mMinuteActivityTV, "stationary");
             moveCount = stillCount = 0;
         }
         if(item[3][1] > 1){
-            update(MainActivity.mFrameActivityTV, "moving");
+            updateUI(MainActivity.mFrameActivityTV, "moving");
             moveCount++;
         }
         else{
-            update(MainActivity.mFrameActivityTV, "stationary");
+            updateUI(MainActivity.mFrameActivityTV, "stationary");
             stillCount++;
         }
     }
 
-    private void update(final TextView view, final String str){
+    private void updateUI(final TextView view, final String str){
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -353,6 +310,51 @@ public class SensorBuffer {
         });
     }
 
+    private void finalResult(double item){
+        //                                    1      2      3       4        5         6       7     8       9     10
+        String[] keyActivity = new String[]{"开车","刷牙","骑车", "洗澡", "坐车乘车","走路","站立","跑步", "坐", "睡眠"};
+        String[] shortActivity = new String[]{"开","刷","骑", "洗", "乘","走","站","跑", "坐", "睡"};
+
+        int temp = (int)item;
+        //time format
+        SimpleDateFormat sdf = new SimpleDateFormat("ss");
+        updateUI(MainActivity.mRecognitionActivityTV, keyActivity[temp - 1] + sdf.format(System.currentTimeMillis()));
+
+        if(activitySum < 9){
+            activityUI[activitySum] = shortActivity[temp - 1];
+            String s = "";
+            for(int i = 0; i <= activitySum; i++)
+                s += activityUI[i];
+            updateUI(MainActivity.mFrameActivityTV, s);
+            activitySum++;
+        }else{
+            String s = "";
+            activityUI[activitySum] = shortActivity[temp - 1];
+            for(int i = 0; i < activitySum; i++){
+                activityUI[i] = activityUI[i + 1];
+                s = s + activityUI[i];
+            }
+//            s = s + activityUI[activitySum];
+            String mostString = findMost(s);
+            updateUI(mActivity.mMinuteActivityTV, mostString);
+            updateUI(MainActivity.mFrameActivityTV, s);
+        }
+
+    }
 
 
+    public String findMost(String str){
+        int maxLen = 0;
+        String maxStr = "";
+        while(str.length() > 0){
+            int length = str.length();
+            String first = str.substring(0, 1);
+            str = str.replaceAll(first, "");
+            if(maxLen < length - str.length()){
+                maxLen = length - str.length();
+                maxStr = first;
+            }
+        }
+        return maxStr;
+    }
 }

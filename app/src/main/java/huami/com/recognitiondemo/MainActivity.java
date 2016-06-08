@@ -2,6 +2,7 @@ package huami.com.recognitiondemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import huami.com.recognitiondemo.utils.DecisionTree;
+import huami.com.recognitiondemo.utils.DecisionTreeNode;
 
 public class MainActivity extends Activity {
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
@@ -28,6 +30,11 @@ public class MainActivity extends Activity {
     Button mStartBtn = null;
     public static TextView mFrameActivityTV = null;
     public static TextView mMinuteActivityTV = null;
+    public static TextView mRecognitionActivityTV = null;
+    public static TextView mTestDataTV = null;
+
+    public DecisionTreeNode decisionTreeNode = new DecisionTreeNode(0, 0);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +44,16 @@ public class MainActivity extends Activity {
         mStartBtn = (Button)findViewById(R.id.btn_start);
         mFrameActivityTV = (TextView)findViewById(R.id.tv_frame_activity);
         mMinuteActivityTV = (TextView)findViewById(R.id.tv_minute_activity);
+        mRecognitionActivityTV = (TextView)findViewById(R.id.tv_recognition_activity);
+        mTestDataTV = (TextView)findViewById(R.id.tv_test_data);
 
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             sSensorBaseFolder = new File(Environment.getExternalStorageDirectory(), "Recognition");
             sSensorBaseFolder.mkdir();
         }
+
+        //create tree
+        decisionTreeNode = decisionTreeNode.deSerialization();
 
 
     }
@@ -62,6 +74,8 @@ public class MainActivity extends Activity {
             mStartBtn.setText("Start");
             mFrameActivityTV.setText("Activity");
             mMinuteActivityTV.setText("Activity");
+            mRecognitionActivityTV.setText("Default");
+            mTestDataTV.setText("testData");
             mIsRecording = false;
             stopSensorService(SENSOR_TYPE);
         }
